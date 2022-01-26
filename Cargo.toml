@@ -1,0 +1,2 @@
+[workspace]
+members = ["zk-pub-app", "zk-pub-bin", "zk-pub-models"]

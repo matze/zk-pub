@@ -1,0 +1,11 @@
+[package]
+name = "zk-pub-bin"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "3", features = ["derive"] }
+comrak = "0"
+serde_json = "1"
+zk-pub-models = { path = "../zk-pub-models" }
