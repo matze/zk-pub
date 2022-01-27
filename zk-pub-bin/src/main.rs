@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use comrak::nodes::{NodeHeading, NodeValue};
+use std::collections::HashMap;
 use std::path::PathBuf;
 use zk_pub_models::Zettel;
 
@@ -55,7 +56,7 @@ fn comrak_options() -> comrak::ComrakOptions {
 }
 
 /// Try to read a Zettel from `path`.
-fn zettel_from(path: PathBuf) -> Result<Zettel> {
+fn zettel_from(path: PathBuf) -> Result<(String, Zettel)> {
     let anchor = path.file_stem().unwrap().to_string_lossy().to_string();
     let data = std::fs::read_to_string(&path)?;
     let arena = comrak::Arena::new();
@@ -90,11 +91,7 @@ fn zettel_from(path: PathBuf) -> Result<Zettel> {
     comrak::format_html(&root, &options, &mut html)?;
     let inner_html = String::from_utf8(html)?;
 
-    Ok(Zettel {
-        anchor,
-        title,
-        inner_html,
-    })
+    Ok((anchor, Zettel { title, inner_html }))
 }
 
 fn main() -> Result<()> {
@@ -108,7 +105,7 @@ fn main() -> Result<()> {
         .filter_map(Result::ok)
         .filter_map(path_if_entry_is_md)
         .map(zettel_from)
-        .collect::<Result<Vec<Zettel>, _>>()?;
+        .collect::<Result<HashMap<String, Zettel>, _>>()?;
 
     let path = opts.output.join("zettel.json");
     let file = std::fs::File::create(path)?;

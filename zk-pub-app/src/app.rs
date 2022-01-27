@@ -4,6 +4,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 use crate::ZettelDetails;
 use crate::ZettelSearch;
 use reqwasm::http::Request;
+use std::collections::HashMap;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use zk_pub_models::Zettel;
@@ -23,9 +24,9 @@ pub struct ZettelProps {
 
 #[function_component(ZettelFor)]
 pub fn zettel_for(ZettelProps { id }: &ZettelProps) -> Html {
-    use_context::<Vec<Zettel>>()
-        .map(|z| {
-            z.iter().find(|z| &z.anchor == id).map(|zettel| {
+    use_context::<HashMap<String, Zettel>>()
+        .map(|m| {
+            m.get(id).map(|zettel| {
                 html! {
                     <ZettelDetails zettel={zettel.clone()} />
                 }
@@ -46,7 +47,7 @@ fn switch(routes: &Route) -> Html {
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let zettel = use_state(|| vec![]);
+    let zettel = use_state(|| HashMap::<String, Zettel>::new());
 
     {
         let zettel = zettel.clone();
@@ -54,7 +55,7 @@ pub fn app() -> Html {
         use_effect_with_deps(
             move |_| {
                 wasm_bindgen_futures::spawn_local(async move {
-                    let fetched: Vec<Zettel> = Request::get("/static/zettel.json")
+                    let fetched: HashMap<String, Zettel> = Request::get("/static/zettel.json")
                         .send()
                         .await
                         .unwrap()
@@ -86,12 +87,12 @@ pub fn app() -> Html {
     html! {
         <div class="main">
             <ZettelSearch zettel={(*zettel).clone()} on_click={on_zettel_select.clone()}/>
-            <ContextProvider<Vec<Zettel>> context={(*zettel).clone()}>
+            <ContextProvider<HashMap<String, Zettel>> context={(*zettel).clone()}>
                 <BrowserRouter>
                     <Switch<Route> render={Switch::render(switch)} />
                 </BrowserRouter>
                 { for details }
-            </ContextProvider<Vec<Zettel>>>
+            </ContextProvider<HashMap<String, Zettel>>>
         </div>
     }
 }

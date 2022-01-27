@@ -1,11 +1,12 @@
 use crate::TextInput;
 use fuzzy_matcher::FuzzyMatcher;
+use std::collections::HashMap;
 use yew::prelude::*;
 use zk_pub_models::Zettel;
 
 #[derive(Clone, Properties, PartialEq)]
 pub struct Props {
-    pub zettel: Vec<Zettel>,
+    pub zettel: HashMap<String, Zettel>,
     pub on_click: Callback<Zettel>,
 }
 
@@ -43,7 +44,7 @@ impl Component for ZettelSearch {
         } else {
             ctx.props()
                 .zettel
-                .iter()
+                .values()
                 .filter(|z| matcher.fuzzy_match(&z.title, &self.search_term).is_some())
                 .map(|z| {
                     let on_select = {
