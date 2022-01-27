@@ -66,10 +66,8 @@ impl Component for ZettelSearch {
                     <p>{"Search for a note"}</p>
                 </div>
             }
-        }
-        else {
-            html! {
-            }
+        } else {
+            html! {}
         };
 
         let on_change = ctx.link().callback(Self::Message::SetSearchTerm);

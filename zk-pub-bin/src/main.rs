@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
+use comrak::nodes::{NodeHeading, NodeValue};
 use std::path::PathBuf;
 use zk_pub_models::Zettel;
-use comrak::nodes::{NodeHeading, NodeValue};
 
 #[derive(Parser, Debug)]
 struct Opts {
