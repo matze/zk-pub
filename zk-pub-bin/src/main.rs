@@ -1,9 +1,8 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use comrak::nodes::{NodeHeading, NodeValue};
-use std::collections::HashMap;
 use std::path::PathBuf;
-use zk_pub_models::Zettel;
+use zk_pub_models::{Zettel, ZettelMap};
 
 #[derive(Parser, Debug)]
 struct Opts {
@@ -105,7 +104,7 @@ fn main() -> Result<()> {
         .filter_map(Result::ok)
         .filter_map(path_if_entry_is_md)
         .map(zettel_from)
-        .collect::<Result<HashMap<String, Zettel>, _>>()?;
+        .collect::<Result<ZettelMap, _>>()?;
 
     let path = opts.output.join("zettel.json");
     let file = std::fs::File::create(path)?;

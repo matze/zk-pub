@@ -4,10 +4,9 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 use crate::ZettelDetails;
 use crate::ZettelSearch;
 use reqwasm::http::Request;
-use std::collections::HashMap;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use zk_pub_models::Zettel;
+use zk_pub_models::{Zettel, ZettelMap};
 
 #[derive(Clone, PartialEq, Routable)]
 enum Route {
@@ -24,7 +23,7 @@ pub struct ZettelProps {
 
 #[function_component(ZettelFor)]
 pub fn zettel_for(ZettelProps { id }: &ZettelProps) -> Html {
-    use_context::<HashMap<String, Zettel>>()
+    use_context::<ZettelMap>()
         .map(|m| {
             m.get(id).map(|zettel| {
                 html! {
@@ -47,7 +46,7 @@ fn switch(routes: &Route) -> Html {
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let zettel = use_state(|| HashMap::<String, Zettel>::new());
+    let zettel = use_state(|| ZettelMap::new());
 
     {
         let zettel = zettel.clone();
@@ -55,13 +54,15 @@ pub fn app() -> Html {
         use_effect_with_deps(
             move |_| {
                 wasm_bindgen_futures::spawn_local(async move {
-                    let fetched: HashMap<String, Zettel> = Request::get("/static/zettel.json")
+                    // TODO: proper error handling
+                    let fetched: ZettelMap = Request::get("/static/zettel.json")
                         .send()
                         .await
                         .unwrap()
                         .json()
                         .await
                         .unwrap();
+
                     zettel.set(fetched);
                 });
                 || ()
@@ -87,12 +88,12 @@ pub fn app() -> Html {
     html! {
         <div class="main">
             <ZettelSearch zettel={(*zettel).clone()} on_click={on_zettel_select.clone()}/>
-            <ContextProvider<HashMap<String, Zettel>> context={(*zettel).clone()}>
+            <ContextProvider<ZettelMap> context={(*zettel).clone()}>
                 <BrowserRouter>
                     <Switch<Route> render={Switch::render(switch)} />
                 </BrowserRouter>
                 { for details }
-            </ContextProvider<HashMap<String, Zettel>>>
+            </ContextProvider<ZettelMap>>
         </div>
     }
 }
