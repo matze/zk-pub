@@ -100,7 +100,14 @@ fn main() -> Result<()> {
         return Err(anyhow!("{:?} is not a directory", opts.output));
     }
 
-    let zettels = std::fs::read_dir(opts.input.unwrap())?
+    let input = match opts.input {
+        Some(input) => input,
+        None => {
+            PathBuf::from(std::env::var("ZK_NOTEBOOK_DIR")?)
+        }
+    };
+
+    let zettels = std::fs::read_dir(input)?
         .filter_map(Result::ok)
         .filter_map(path_if_entry_is_md)
         .map(zettel_from)
