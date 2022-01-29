@@ -1,7 +1,7 @@
 //! Zettel models shared by the offline generator and the web app.
 
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// A zettel.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

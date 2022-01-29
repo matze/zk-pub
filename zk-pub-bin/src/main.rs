@@ -102,9 +102,7 @@ fn main() -> Result<()> {
 
     let input = match opts.input {
         Some(input) => input,
-        None => {
-            PathBuf::from(std::env::var("ZK_NOTEBOOK_DIR")?)
-        }
+        None => PathBuf::from(std::env::var("ZK_NOTEBOOK_DIR")?),
     };
 
     let zettels = std::fs::read_dir(input)?

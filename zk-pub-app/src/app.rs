@@ -6,50 +6,45 @@ use crate::ZettelSearch;
 use reqwasm::http::Request;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use zk_pub_models::{Zettel, ZettelMap};
+use zk_pub_models::ZettelMap;
 
 #[derive(Clone, PartialEq, Routable)]
-enum Route {
+pub enum Route {
     #[at("/")]
     Home,
     #[at("/:id")]
     Zettel { id: String },
 }
 
-#[derive(Properties, PartialEq)]
-pub struct ZettelProps {
-    pub id: String,
-}
-
-#[function_component(ZettelFor)]
-pub fn zettel_for(ZettelProps { id }: &ZettelProps) -> Html {
-    use_context::<ZettelMap>()
-        .map(|m| {
-            m.get(id).map(|zettel| {
-                html! {
-                    <ZettelDetails zettel={zettel.clone()} />
-                }
-            })
-        })
-        .flatten()
-        .unwrap_or_else(|| html! {})
-}
-
 fn switch(routes: &Route) -> Html {
     match routes {
-        Route::Home => html! {},
+        Route::Home => {
+            html! {
+                <>
+                <ZettelSearch />
+                <div class="row hint">
+                    <p>{"search for a note"}</p>
+                </div>
+                </>
+            }
+        }
         Route::Zettel { id } => {
-            html! { <ZettelFor id={id.clone()}/> }
+            html! {
+                <>
+                <ZettelSearch />
+                <ZettelDetails id={id.clone()}/>
+                </>
+            }
         }
     }
 }
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let zettel = use_state(|| ZettelMap::new());
+    let map = use_state(|| ZettelMap::new());
 
     {
-        let zettel = zettel.clone();
+        let map = map.clone();
 
         use_effect_with_deps(
             move |_| {
@@ -63,7 +58,7 @@ pub fn app() -> Html {
                         .await
                         .unwrap();
 
-                    zettel.set(fetched);
+                    map.set(fetched);
                 });
                 || ()
             },
@@ -71,29 +66,13 @@ pub fn app() -> Html {
         );
     }
 
-    let selected_zettel = use_state(|| None);
-
-    let on_zettel_select = {
-        let selected_zettel = selected_zettel.clone();
-
-        Callback::from(move |zettel: Zettel| selected_zettel.set(Some(zettel)))
-    };
-
-    let details = selected_zettel.as_ref().map(|z| {
-        html! {
-            <ZettelDetails zettel={z.clone()} />
-        }
-    });
-
     html! {
-        <div class="main">
-            <ZettelSearch zettel={(*zettel).clone()} on_click={on_zettel_select.clone()}/>
-            <ContextProvider<ZettelMap> context={(*zettel).clone()}>
-                <BrowserRouter>
-                    <Switch<Route> render={Switch::render(switch)} />
-                </BrowserRouter>
-                { for details }
-            </ContextProvider<ZettelMap>>
-        </div>
+        <ContextProvider<ZettelMap> context={(*map).clone()}>
+            <BrowserRouter>
+                <div class="main">
+                <Switch<Route> render={Switch::render(switch)} />
+                </div>
+            </BrowserRouter>
+        </ContextProvider<ZettelMap>>
     }
 }
