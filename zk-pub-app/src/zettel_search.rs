@@ -1,9 +1,26 @@
 use crate::app::Route;
 use crate::TextInput;
+use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use zk_pub_models::ZettelMap;
+use zk_pub_models::{Zettel, ZettelMap};
+
+/// Return Zettel from `map` sorted by score matching `term`.
+fn sorted_zettels(map: ZettelMap, term: &str) -> Vec<(i64, (String, Zettel))> {
+    let matcher = SkimMatcherV2::default();
+
+    let mut scored = map
+        .into_iter()
+        .filter_map(|item| match matcher.fuzzy_match(&item.1.title, term) {
+            Some(score) => Some((score, item)),
+            None => None,
+        })
+        .collect::<Vec<_>>();
+
+    scored.sort_by_key(|(score, _)| -score.abs());
+    scored
+}
 
 #[function_component(ZettelSearch)]
 pub fn zettel_search() -> Html {
@@ -15,15 +32,12 @@ pub fn zettel_search() -> Html {
         callback_current.set(value.clone());
     });
 
-    let matcher = fuzzy_matcher::skim::SkimMatcherV2::default();
-
     let list = if *current == "" {
         vec![]
     } else {
-        zettel_map
+        sorted_zettels(zettel_map, &current)
             .iter()
-            .filter(|(_, zettel)| matcher.fuzzy_match(&zettel.title, &current).is_some())
-            .map(|(id, zettel)| {
+            .map(|(_, (id, zettel))| {
                 let history = use_history().unwrap();
                 let id = id.clone();
 
