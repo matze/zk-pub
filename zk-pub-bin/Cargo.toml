@@ -3,6 +3,10 @@ name = "zk-pub-bin"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "zk-pub"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1"
 clap = { version = "3", features = ["derive"] }
