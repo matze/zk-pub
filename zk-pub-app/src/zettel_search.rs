@@ -1,5 +1,5 @@
 use crate::app::Route;
-use crate::TextInput;
+use crate::{text_input, TextInput};
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use yew::prelude::*;
@@ -28,8 +28,9 @@ pub fn zettel_search() -> Html {
     let zettel_map = use_context::<ZettelMap>().expect("no ZettelMap found");
     let callback_current = current.clone();
 
-    let on_change = Callback::from(move |value: String| {
-        callback_current.set(value.clone());
+    let on_change = Callback::from(move |message| match message {
+        text_input::Message::Value(value) => callback_current.set(value.clone()),
+        text_input::Message::Clear => callback_current.set("".to_string()),
     });
 
     let list = if *current == "" {
@@ -48,7 +49,7 @@ pub fn zettel_search() -> Html {
     html! {
         <>
         <div class="row">
-            <TextInput on_change={on_change} value={(*current).clone()}/>
+            <TextInput on_change={on_change} />
         </div>
         <div class="row">
             <ul class="search">
