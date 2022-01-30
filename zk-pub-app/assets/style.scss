@@ -1,3 +1,7 @@
+$body-font: 'Source Serif Pro', serif;
+$display-font: 'Zilla Slab', serif;
+$mono-font: 'Roboto Mono', monospace;
+
 * {
   padding: 0;
   margin: 0;
@@ -6,27 +10,47 @@
 body {
   background-color: #fffcf2;
   font-size: x-large;
-  font-family: 'Source Serif Pro', serif;
+  font-family: $body-font;
 }
 
 h1, h2, h3, h4, h5 {
-  font-family: 'Zilla Slab', serif;
-  margin-bottom: .5em;
+  font-family: $display-font;
+  margin-bottom: 2rem;
 }
 
 pre {
-  margin-top: 1em;
-  margin-bottom: 1em;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+ol {
+  list-style: decimal inside;
+}
+
+ul {
+  list-style: circle inside;
+}
+
+ol ul {
+  margin: 1.5rem 0 1.5rem 3rem;
+}
+
+li {
+  margin-bottom: 1rem;
 }
 
 code {
-  font-family: 'Roboto Mono', monospace;
+  font-family: $mono-font;
+}
+
+p, ul, ol {
+  margin-bottom: 1rem;
 }
 
 .main {
   display: flex;
   flex-wrap: wrap;
-  width: 50em;
+  width: 60rem;
   margin: auto;
 }
 
@@ -34,8 +58,8 @@ code {
   width: 100%;
   background-color: #faf5e6;
   border: 2px solid #faf5e6;
-  padding: .3em;
-  margin-top: 1em;
+  padding: .5rem;
+  margin-top: 2rem;
   font-size: xx-large;
 }
 
@@ -49,25 +73,25 @@ code {
 }
 
 .hint {
-  font-family: 'Zilla Slab', serif;
+  font-family: $display-font;
   text-align: center;
   font-size: xx-large;
   text-transform: uppercase;
   color: #cfc5a5;
-  margin: 4em;
+  margin: 4rem;
 }
 
 .zettel {
-  margin-top: 1em;
+  margin-top: 1rem;
 }
 
 ul.search {
-  margin-top: .5em;
+  margin-top: 1rem;
 }
 
 ul.search > li {
-  padding-top: .2em;
-  padding-bottom: .2em;
+  padding-top: .2rem;
+  padding-bottom: .2rem;
   list-style-type: none;
 }
 

@@ -23,7 +23,7 @@ fn switch(routes: &Route) -> Html {
                 <>
                 <ZettelSearch />
                 <div class="row hint">
-                    <p>{"search for a note"}</p>
+                    <p>{"press tab and search for a note"}</p>
                 </div>
                 </>
             }
