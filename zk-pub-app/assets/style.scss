@@ -60,3 +60,22 @@ code {
 .zettel {
   margin-top: 1em;
 }
+
+ul.search {
+  margin-top: .5em;
+}
+
+ul.search > li {
+  padding-top: .2em;
+  padding-bottom: .2em;
+  list-style-type: none;
+}
+
+ul.search > li:hover {
+  background-color: #faf5e6;
+}
+
+ul.search > li > a:link, a:visited {
+  color: black;
+  text-decoration: none;
+}
