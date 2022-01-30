@@ -38,20 +38,8 @@ pub fn zettel_search() -> Html {
         sorted_zettels(zettel_map, &current)
             .iter()
             .map(|(_, (id, zettel))| {
-                let history = use_history().unwrap();
-                let id = id.clone();
-
-                let current = current.clone();
-                let on_select = {
-                    Callback::from(move |_| {
-                        // Clear the search bar.
-                        current.set("".to_string());
-                        history.push(Route::Zettel { id: id.clone() })
-                    })
-                };
-
                 html! {
-                    <li onclick={on_select}>{format!("{}", zettel.title)}</li>
+                    <li><Link<Route> to={Route::Zettel { id: id.clone() }}>{ zettel.title.clone() }</Link<Route>></li>
                 }
             })
             .collect::<Vec<_>>()
