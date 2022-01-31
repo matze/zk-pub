@@ -50,7 +50,7 @@ pub fn app() -> Html {
             move |_| {
                 wasm_bindgen_futures::spawn_local(async move {
                     // TODO: proper error handling
-                    let fetched: ZettelMap = Request::get("/zettel.json")
+                    let fetched: ZettelMap = Request::get("/static/zettel.json")
                         .send()
                         .await
                         .unwrap()

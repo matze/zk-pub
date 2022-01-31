@@ -1,9 +1,11 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
+use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::nodes::{NodeHeading, NodeValue};
+use comrak::plugins::syntect::SyntectAdapter;
 use include_dir::{include_dir, Dir, DirEntry};
-use std::io::prelude::*;
 use std::fs::File;
+use std::io::prelude::*;
 use std::path::{Path, PathBuf};
 use zk_pub_models::{Zettel, ZettelMap};
 
@@ -18,6 +20,33 @@ struct Opts {
     /// Output directory.
     #[clap(long)]
     output: PathBuf,
+}
+
+/// Syntax highlight adapter based on syntect that does not style the <pre> and <code> blocks.
+struct Adapter<'a> {
+    inner: SyntectAdapter<'a>,
+}
+
+impl Adapter<'_> {
+    fn new() -> Self {
+        Self {
+            inner: SyntectAdapter::new("base16-ocean.light"),
+        }
+    }
+}
+
+impl SyntaxHighlighterAdapter for Adapter<'_> {
+    fn highlight(&self, lang: Option<&str>, code: &str) -> String {
+        self.inner.highlight(lang, code)
+    }
+
+    fn build_pre_tag(&self, _attributes: &std::collections::HashMap<String, String>) -> String {
+        String::from("<pre>")
+    }
+
+    fn build_code_tag(&self, _attributes: &std::collections::HashMap<String, String>) -> String {
+        String::from("<code>")
+    }
 }
 
 /// Return a new `PathBuf` if `entry` is a file and ends with .md.
@@ -91,8 +120,12 @@ fn zettel_from(path: PathBuf) -> Result<(String, Zettel)> {
         anchor.clone()
     };
 
+    let adapter = Adapter::new();
+    let mut plugins = comrak::ComrakPlugins::default();
+    plugins.render.codefence_syntax_highlighter = Some(&adapter);
+
     let mut html = vec![];
-    comrak::format_html(&root, &options, &mut html)?;
+    comrak::format_html_with_plugins(&root, &options, &mut html, &plugins)?;
     let inner_html = String::from_utf8(html)?;
 
     Ok((anchor, Zettel { title, inner_html }))

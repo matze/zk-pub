@@ -10,7 +10,7 @@ path = "src/main.rs"
 [dependencies]
 anyhow = "1"
 clap = { version = "3", features = ["derive"] }
-comrak = "0"
+comrak = { version = "0", default-features = false, features = ["syntect"] }
 include_dir = "0"
 serde_json = "1"
 zk-pub-models = { path = "../zk-pub-models" }
