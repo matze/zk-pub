@@ -1,8 +1,13 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use comrak::nodes::{NodeHeading, NodeValue};
-use std::path::PathBuf;
+use include_dir::{include_dir, Dir, DirEntry};
+use std::io::prelude::*;
+use std::fs::File;
+use std::path::{Path, PathBuf};
 use zk_pub_models::{Zettel, ZettelMap};
+
+static DIST_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../zk-pub-app/dist");
 
 #[derive(Parser, Debug)]
 struct Opts {
@@ -93,6 +98,18 @@ fn zettel_from(path: PathBuf) -> Result<(String, Zettel)> {
     Ok((anchor, Zettel { title, inner_html }))
 }
 
+/// Write front end app.
+fn write_app(path: &Path) -> Result<()> {
+    for entry in DIST_DIR.entries() {
+        if let DirEntry::File(entry) = entry {
+            let mut file = File::create(path.join(entry.path()))?;
+            file.write(entry.contents())?;
+        }
+    }
+
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let opts = Opts::parse();
 
@@ -114,6 +131,8 @@ fn main() -> Result<()> {
     let path = opts.output.join("zettel.json");
     let file = std::fs::File::create(path)?;
     serde_json::to_writer(file, &zettels)?;
+
+    write_app(&opts.output)?;
 
     Ok(())
 }
