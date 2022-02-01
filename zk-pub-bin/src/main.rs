@@ -1,9 +1,11 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use comrak::adapters::SyntaxHighlighterAdapter;
-use comrak::nodes::{NodeHeading, NodeValue};
+use comrak::arena_tree::Node;
+use comrak::nodes::{Ast, NodeValue};
 use comrak::plugins::syntect::SyntectAdapter;
 use include_dir::{include_dir, Dir, DirEntry};
+use std::cell::RefCell;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
@@ -88,6 +90,25 @@ fn comrak_options() -> comrak::ComrakOptions {
     }
 }
 
+fn get_text<'a>(node: &Node<RefCell<Ast>>) -> Option<String> {
+    node.data
+        .borrow()
+        .value
+        .text()
+        .map(|d| match String::from_utf8(d.to_vec()) {
+            Ok(s) => Some(s),
+            Err(_) => None,
+        })
+        .flatten()
+}
+
+fn get_node_heading_text<'a>(node: &Node<RefCell<Ast>>) -> Option<String> {
+    match node.data.borrow().value {
+        NodeValue::Heading(_) => node.first_child().map(get_text).flatten(),
+        _ => None,
+    }
+}
+
 /// Try to read a Zettel from `path`.
 fn zettel_from(path: PathBuf) -> Result<(String, Zettel)> {
     let anchor = path.file_stem().unwrap().to_string_lossy().to_string();
@@ -97,28 +118,11 @@ fn zettel_from(path: PathBuf) -> Result<(String, Zettel)> {
 
     let root = comrak::parse_document(&arena, &data, &options);
 
-    // Ugh ...
-    let title = if let Some(node) = root.first_child() {
-        if let NodeValue::Heading(NodeHeading {
-            level: _,
-            setext: _,
-        }) = node.data.borrow().value
-        {
-            if let Some(node) = node.first_child() {
-                if let Some(data) = node.data.borrow().value.text() {
-                    String::from_utf8(data.to_vec())?
-                } else {
-                    anchor.clone()
-                }
-            } else {
-                anchor.clone()
-            }
-        } else {
-            anchor.clone()
-        }
-    } else {
-        anchor.clone()
-    };
+    let title = root
+        .first_child()
+        .map(get_node_heading_text)
+        .flatten()
+        .unwrap_or_else(|| anchor.clone());
 
     let adapter = Adapter::new();
     let mut plugins = comrak::ComrakPlugins::default();
