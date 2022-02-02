@@ -90,7 +90,7 @@ fn comrak_options() -> comrak::ComrakOptions {
     }
 }
 
-fn get_text<'a>(node: &Node<RefCell<Ast>>) -> Option<String> {
+fn get_text(node: &Node<RefCell<Ast>>) -> Option<String> {
     node.data
         .borrow()
         .value
@@ -102,7 +102,7 @@ fn get_text<'a>(node: &Node<RefCell<Ast>>) -> Option<String> {
         .flatten()
 }
 
-fn get_node_heading_text<'a>(node: &Node<RefCell<Ast>>) -> Option<String> {
+fn get_node_heading_text(node: &Node<RefCell<Ast>>) -> Option<String> {
     match node.data.borrow().value {
         NodeValue::Heading(_) => node.first_child().map(get_text).flatten(),
         _ => None,
@@ -129,7 +129,7 @@ fn zettel_from(path: PathBuf) -> Result<(String, Zettel)> {
     plugins.render.codefence_syntax_highlighter = Some(&adapter);
 
     let mut html = vec![];
-    comrak::format_html_with_plugins(&root, &options, &mut html, &plugins)?;
+    comrak::format_html_with_plugins(root, &options, &mut html, &plugins)?;
     let inner_html = String::from_utf8(html)?;
 
     Ok((anchor, Zettel { title, inner_html }))
@@ -140,7 +140,7 @@ fn write_app(path: &Path) -> Result<()> {
     for entry in DIST_DIR.entries() {
         if let DirEntry::File(entry) = entry {
             let mut file = File::create(path.join(entry.path()))?;
-            file.write(entry.contents())?;
+            file.write_all(entry.contents())?;
         }
     }
 

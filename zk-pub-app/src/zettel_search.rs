@@ -12,9 +12,10 @@ fn sorted_zettels(map: ZettelMap, term: &str) -> Vec<(i64, (String, Zettel))> {
 
     let mut scored = map
         .into_iter()
-        .filter_map(|item| match matcher.fuzzy_match(&item.1.title, term) {
-            Some(score) => Some((score, item)),
-            None => None,
+        .filter_map(|item| {
+            matcher
+                .fuzzy_match(&item.1.title, term)
+                .map(|score| (score, item))
         })
         .collect::<Vec<_>>();
 
@@ -24,16 +25,16 @@ fn sorted_zettels(map: ZettelMap, term: &str) -> Vec<(i64, (String, Zettel))> {
 
 #[function_component(ZettelSearch)]
 pub fn zettel_search() -> Html {
-    let current = use_state(|| String::new());
+    let current = use_state(String::new);
     let zettel_map = use_context::<ZettelMap>().expect("no ZettelMap found");
     let callback_current = current.clone();
 
     let on_change = Callback::from(move |message| match message {
-        text_input::Message::Value(value) => callback_current.set(value.clone()),
+        text_input::Message::Value(value) => callback_current.set(value),
         text_input::Message::Clear => callback_current.set("".to_string()),
     });
 
-    let list = if *current == "" {
+    let list = if (*current).is_empty() {
         vec![]
     } else {
         sorted_zettels(zettel_map, &current)

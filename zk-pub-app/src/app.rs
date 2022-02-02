@@ -41,7 +41,7 @@ fn switch(routes: &Route) -> Html {
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let map = use_state(|| ZettelMap::new());
+    let map = use_state(ZettelMap::new);
 
     {
         let map = map.clone();
