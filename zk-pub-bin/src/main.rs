@@ -6,7 +6,7 @@ use comrak::nodes::{Ast, NodeValue};
 use comrak::plugins::syntect::SyntectAdapter;
 use include_dir::{include_dir, Dir, DirEntry};
 use std::cell::RefCell;
-use std::fs::File;
+use std::fs::{create_dir_all, File};
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
 use zk_pub_models::{Zettel, ZettelMap};
@@ -165,8 +165,10 @@ fn main() -> Result<()> {
         .map(zettel_from)
         .collect::<Result<ZettelMap, _>>()?;
 
-    let path = opts.output.join("zettel.json");
-    let file = std::fs::File::create(path)?;
+    let path = opts.output.join("static");
+    create_dir_all(&path)?;
+
+    let file = std::fs::File::create(path.join("zettel.json"))?;
     serde_json::to_writer(file, &zettels)?;
 
     write_app(&opts.output)?;
