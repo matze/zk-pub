@@ -2,6 +2,10 @@ $body-font: 'Source Serif Pro', serif;
 $display-font: 'Zilla Slab', serif;
 $mono-font: 'Roboto Mono', monospace;
 
+$dark: #faf5e6;
+$darker: #f0e7cc;
+$darkest: #c7bda1;
+
 * {
   padding: 0;
   margin: 0;
@@ -15,7 +19,7 @@ body {
 
 h1, h2, h3, h4, h5 {
   font-family: $display-font;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 pre {
@@ -24,11 +28,15 @@ pre {
 }
 
 ol {
-  list-style: decimal inside;
+  list-style: decimal outside;
 }
 
 ul {
-  list-style: circle inside;
+  list-style: disc outside;
+}
+
+ul, ol li::marker {
+  color: $darkest;
 }
 
 ol ul {
@@ -43,8 +51,29 @@ code {
   font-family: $mono-font;
 }
 
-p, ul, ol {
+ul, ol, blockquote {
+  margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+p + p {
+  text-indent: 1rem;
+}
+
+hr {
+  border: 1px solid $darker;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%;
+}
+
+blockquote {
+  font-family: $display-font;
+  font-style: italic;
+  background-color: $dark;
+  padding: 1em;
 }
 
 .main {
@@ -56,8 +85,8 @@ p, ul, ol {
 
 .main input {
   width: 100%;
-  background-color: #faf5e6;
-  border: 2px solid #faf5e6;
+  background-color: $dark;
+  border: 2px solid $dark;
   padding: .5rem;
   margin-top: 2rem;
   font-size: xx-large;
@@ -65,7 +94,7 @@ p, ul, ol {
 
 .main input:focus {
   outline: none !important;
-  border: 2px solid #f0e7cc;
+  border: 2px solid $darker;
 }
 
 .row {
