@@ -19,6 +19,7 @@ body {
 
 h1, h2, h3, h4, h5 {
   font-family: $display-font;
+  margin-top: 1rem;
   margin-bottom: 1rem;
 }
 
@@ -35,7 +36,7 @@ ul {
   list-style: disc outside;
 }
 
-ul, ol li::marker {
+ul li::marker, ol li::marker {
   color: $darkest;
 }
 
@@ -57,7 +58,7 @@ ul, ol, blockquote {
 }
 
 p + p {
-  text-indent: 1rem;
+  margin-top: 1rem;
 }
 
 hr {
